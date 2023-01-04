@@ -1,0 +1,49 @@
+import pandas as pd
+import os
+
+# comment out these 2 lines if excecuting first time to read the files
+from google.colab import drive
+drive.mount('/content/drive')
+
+# Enter your folder name
+folder_name = ('Swiggy_Nov-Dec_files')
+
+# Enter output file name for output
+file_output = ('2')
+
+# generating file links
+rootdir = '/content/drive/MyDrive/{}/'.format(folder_name)
+
+file_names=[]
+for rootdir, dirs, files in os.walk(rootdir):
+    for subdir in dirs:
+        Allfolders = (os.path.join(rootdir, subdir))
+        file_names.append(Allfolders)
+
+# creting a data frame
+df=pd.DataFrame()
+count=0
+for count in range(len(file_names)):
+  for file in os.listdir(file_names[count]):
+    x1=pd.ExcelFile(file_names[count]+'/'+file)
+  
+    # read the excel sheets
+    sheet1=pd.read_excel(x1,'Summary',skiprows=range(2))
+    sheet2=pd.read_excel(x1,'Payout Invoice' , skiprows=range(5))
+
+    # insert payout period into table
+    sheet2.insert(1,'Payout Period',sheet1.iloc[13]['Unnamed: 1'],allow_duplicates=False)
+    
+    # merge all tables
+    df=pd.concat([df,sheet2])
+
+  count+=1
+
+# rename column name as Particulars
+df.rename(columns={'Unnamed: 1':'Particulars'},inplace=True)
+
+# give a filename to be download in place of Finalresults.xlsx
+pd.pivot_table(data=df,values='Total',columns='Payout Period',index='Particulars',aggfunc='sum',sort=False).to_excel(file_output+'.xlsx', index = 'Particulars')
+
+# show output message
+print('your file is downloaded '+file_output+'.xlsx')
