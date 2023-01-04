@@ -1,3 +1,5 @@
+# THis code collates all the excel files from all the folders which are present in the master.
+
 import pandas as pd
 import os
 
@@ -5,7 +7,7 @@ import os
 from google.colab import drive
 drive.mount('/content/drive')
 
-# Enter your folder name
+# Enter your master folder name
 folder_name = ('Swiggy_Nov-Dec_files')
 
 # Enter output file name for output
@@ -38,6 +40,61 @@ for count in range(len(file_names)):
     df=pd.concat([df,sheet2])
 
   count+=1
+
+# rename column name as Particulars
+df.rename(columns={'Unnamed: 1':'Particulars'},inplace=True)
+
+# give a filename to be download in place of Finalresults.xlsx
+pd.pivot_table(data=df,values='Total',columns='Payout Period',index='Particulars',aggfunc='sum',sort=False).to_excel(file_output+'.xlsx', index = 'Particulars')
+
+# show output message
+print('your file is downloaded '+file_output+'.xlsx')
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# unmount the google drive from the colab
+from google.colab import drive
+drive.flush_and_unmount()
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# mount google drive to colab
+from google.colab import drive
+drive.mount('/content/drive')
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+# this code will collate and download the files from one folder
+
+import pandas as pd
+import os
+
+# Enter your folder link
+folder_link = ('/content/drive/MyDrive/Swiggy_Nov-Dec_files/DDD')
+
+# Enter output file name for output
+file_output = ('123')
+
+# Enter your folder link
+folder_link = ('/content/drive/MyDrive/Swiggy_Nov-Dec_files/DDD')
+
+# creting a data frame
+df=pd.DataFrame()
+count=0
+# for count in range(len(file_names)):
+for file in os.listdir(folder_link):
+  x1=pd.ExcelFile(folder_link+'/'+file)
+
+  # read the excel sheets
+  sheet1=pd.read_excel(x1,'Summary',skiprows=range(2))
+  sheet2=pd.read_excel(x1,'Payout Invoice' , skiprows=range(5))
+
+  # insert payout period into table
+  sheet2.insert(1,'Payout Period',sheet1.iloc[13]['Unnamed: 1'],allow_duplicates=False)
+  
+  # merge all tables
+  df=pd.concat([df,sheet2])
+
+count+=1
 
 # rename column name as Particulars
 df.rename(columns={'Unnamed: 1':'Particulars'},inplace=True)
